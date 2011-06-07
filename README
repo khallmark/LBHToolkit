@@ -1,0 +1,12 @@
+LBH Toolkit is a set of PHP classes I’ve had to write for various projects. They
+represent pieces of functionality that had poor or no support available as I 
+searched in internet.
+
+The code is available on GitHub.
+
+http://www.github.com/khallmark/lbhtoolkit
+
+Here is an outline of what is available:
+LBHToolkit
+    vCard
+        Generator – an object oriented class for generating vCards
