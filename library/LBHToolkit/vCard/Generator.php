@@ -17,7 +17,10 @@
  * @package     LBHToolkit
  * @copyright   Little Black Hat, 2010
  * @license     http://www.littleblackhat.com/lbhtoolkit    New BSD License
+ * 
+ * The list of possible fields can be found at the bottom of the file.
  */
+
 
 class LBHToolkit_vCard_Generator {
 	/**
@@ -176,3 +179,38 @@ class LBHToolkit_vCard_Generator {
 		}
 	}
 }
+
+/*
+name
+formatted_name
+company
+nickname
+birthday
+role
+title
+note
+
+work_email
+home_email
+
+
+home_fax
+work_fax
+home_phone
+cell_phone
+work_phone
+
+uri
+
+home_address
+home_city
+home_state
+home_zip
+home_country
+
+work_address
+work_city
+work_state
+work_zip
+work_country
+*/
