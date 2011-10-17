@@ -7,6 +7,10 @@ The code is available on GitHub.
 http://www.github.com/khallmark/lbhtoolkit
 
 Here is an outline of what is available:
+
 LBHToolkit
-    vCard
-        Generator – an object oriented class for generating vCards
+	Google
+		Geocode - object oriented access to the Google Maps Geocode API
+	TableMaker - a Zend Controller Helper to programmatically construct html tables
+	vCard
+		Generator – an object oriented class for generating vCards
