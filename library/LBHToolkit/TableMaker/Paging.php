@@ -12,7 +12,7 @@
  * 
  * It is also available online at http://www.littleblackhat.com/lbhtoolkit
  * 
- * @author      Kevin Hallmark <khallmark@avectra.com>
+ * @author      Kevin Hallmark <kevin.hallmark@littleblackhat.com>
  * @since       2011-08-24
  * @package     LBHToolkit
  * @subpackage  TableMaker
@@ -56,6 +56,11 @@ class LBHToolkit_TableMaker_Paging extends LBHToolkit_TableMaker_Abstract
 		if ($this->count > LBHToolkit_TableMaker_Abstract::PAGE_SIZE_MAX)
 		{
 			$this->count = LBHToolkit_TableMaker_Abstract::PAGE_SIZE_MAX;
+		}
+		
+		if (!$this->show_summary)
+		{
+			$this->show_summary = TRUE;
 		}
 	}
 	
@@ -131,11 +136,12 @@ class LBHToolkit_TableMaker_Paging extends LBHToolkit_TableMaker_Abstract
 		// If we aren't on page 1, show a 'Prev' link
 		if($this->page > 1)
 		{
+			$html = $html . sprintf('<li><a href="%s">First</a></li>', $this->renderLink($this->sort, (1)));
 			$html = $html . sprintf('<li><a href="%s">Prev</a></li>', $this->renderLink($this->sort, ($this->page - 1)));
 		}
 		
 		// Generate the middle links for the paginator
-		for ($i = $min_page; $i < $max_page; $i++)
+		for ($i = $min_page; $i <= $max_page; $i++)
 		{
 			// Handle the current page and other pages differently
 			if ($i == $this->page)
@@ -155,10 +161,34 @@ class LBHToolkit_TableMaker_Paging extends LBHToolkit_TableMaker_Abstract
 		if ($this->page < $total_pages)
 		{
 			$html = $html . sprintf('<li><a href="%s">Next</a></li>', $this->renderLink($this->sort, ($this->page + 1)));
+			$html = $html . sprintf('<li><a href="%s">Last</a></li>', $this->renderLink($this->sort, ($total_pages)));
 		}
 		
+		$result_string = '';
+		if ($this->show_summary)
+		{
+			$coeff = (($current_page - 1) * $this->count);
+			$first_result = $coeff + 1;
+			$last_result = $coeff + $this->count;
+			
+			if ($last_result > $this->total_count)
+			{
+				$last_result = $this->total_count;
+			}
+			
+			$result_string = sprintf(
+				'<div class="results">Showing results %s - %s of %s total results. Page %s of %s.</div>',
+				$first_result,
+				$last_result,
+				$this->total_count,
+				$current_page,
+				$total_pages
+			);
+		}
+		
+		
 		// Put hte items in the list and return the html
-		return sprintf('<div class="pagination"><ul>%s</ul></div>', $html);
+		return sprintf('<div class="pagination"><ul>%s</ul>%s</div>', $html, $result_string);
 	}
 	
 	/**

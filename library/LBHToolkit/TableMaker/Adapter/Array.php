@@ -22,6 +22,8 @@
 
 class LBHToolkit_TableMaker_Adapter_Array extends LBHToolkit_TableMaker_Adapter_Abstract
 {
+	protected $_id = 0;
+	
 	/**
 	 * Takes an array of parameters and validates them. Called from the constructor
 	 *
@@ -75,5 +77,17 @@ class LBHToolkit_TableMaker_Adapter_Array extends LBHToolkit_TableMaker_Adapter_
 	{
 		$count = count($this->data);
 		return $count;
+	}
+	
+	/**
+	 * This function should return a unique/primary key for the passed in row.
+	 *
+	 * @param string $row 
+	 * @return void
+	 * @author Kevin Hallmark
+	 */
+	public function getPrimaryKey($row)
+	{
+		return (++$this->_id);
 	}
 }

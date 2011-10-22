@@ -24,6 +24,17 @@
 class LBHToolkit_TableMaker_Adapter_Doctrine extends LBHToolkit_TableMaker_Adapter_Abstract
 {
 	/**
+	 * Set the default parameters for the Adapter
+	 *
+	 * @return void
+	 * @author Kevin Hallmark
+	 */
+	public function setDefaultParams()
+	{
+		$this->primary_key = 'id';
+	}
+	
+	/**
 	 * Takes an array of parameters and validates them. Called from the constructor
 	 *
 	 * @param string $params 
@@ -66,7 +77,7 @@ class LBHToolkit_TableMaker_Adapter_Doctrine extends LBHToolkit_TableMaker_Adapt
 		$query = $this->query;
 		
 		// Add the order by clause
-		$query->orderBy($pagingInfo->sort, $pagingInfo->order);
+		$query->orderBy($pagingInfo->sort . ' ' . $pagingInfo->order);
 		
 		// Set the limit and the offset
 		$query->offset($pagingInfo->count * ($pagingInfo->page - 1));
@@ -92,5 +103,19 @@ class LBHToolkit_TableMaker_Adapter_Doctrine extends LBHToolkit_TableMaker_Adapt
 		$count = $query->getQuery()->getSingleScalarResult();
 		
 		return $count;
+	}
+	
+	/**
+	 * This function should return a unique/primary key for the passed in row.
+	 *
+	 * @param string $row 
+	 * @return void
+	 * @author Kevin Hallmark
+	 */
+	public function getPrimaryKey($row)
+	{
+		$primary_key = $this->primary_key;
+		
+		return $row->$primary_key;
 	}
 }

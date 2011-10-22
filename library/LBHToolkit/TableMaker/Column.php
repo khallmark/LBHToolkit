@@ -12,7 +12,7 @@
  * 
  * It is also available online at http://www.littleblackhat.com/lbhtoolkit
  * 
- * @author      Kevin Hallmark <khallmark@avectra.com>
+ * @author      Kevin Hallmark <kevin.hallmark@littleblackhat.com>
  * @since       2011-08-24
  * @package     LBHToolkit
  * @subpackage  TableMaker
@@ -22,6 +22,8 @@
 
 class LBHToolkit_TableMaker_Column extends LBHToolkit_TableMaker_Abstract
 {
+	protected $_decorators = array();
+	
 	/**
 	 * Takes an array of parameters and validates them. Called from the constructor
 	 *
@@ -39,12 +41,64 @@ class LBHToolkit_TableMaker_Column extends LBHToolkit_TableMaker_Abstract
 		}
 		
 		// Make sure the label is set, if it isn't, use an inflection of the id
-		if (!$this->label)
+		if ($this->label === NULL)
 		{
 			$this->label = ucwords(str_replace('_', ' ', $this->column_id));
 		}
+		
+		if ($this->decorators)
+		{
+			foreach ($this->decorators AS $name => $decorator)
+			{
+				$this->addDecorator($name, $decorator);
+			}
+		}
 	}
 	
+	public function addDecorator($alias, $decorator)
+	{
+		if (is_object($decorator))
+		{
+			if (!($decorator instanceof LBHToolkit_TableMaker_Decorator_Interface))
+			{
+				throw new Memberfuse_Rest_Doctrine_Exception("The object you added for $alias doesn't conform to the adapter interface.");
+			}
+		}
+		else
+		{
+			if (!isset($decorator['type']))
+			{
+				throw new LBHToolkit_TableMaker_Exception(sprintf('No decorator type specified for %s', $alias));
+			}
+			
+			switch ($decorator['type'])
+			{
+				case 'ViewHelper':
+					$class_name = 'LBHToolkit_TableMaker_Decorator_ViewHelper';
+					break;
+				case 'Template':
+					$class_name = 'LBHToolkit_TableMaker_Decorator_Template';
+					break;
+				case 'Function':
+					$class_name = 'LBHToolkit_TableMaker_Decorator_Function';
+					break;
+				default:
+					$class_name = $decorator['type'];
+					break;
+			}
+			
+			if (!class_exists($class_name))
+			{
+				throw new LBHToolkit_TableMaker_Exception("The decorator $class_name could not be found.");
+			}
+			
+			$decorator = new $class_name($decorator);
+		}
+		
+		$decorator->identifier = $alias;
+		
+		$this->_decorators[$aliabrbs] = $decorator;
+	}
 	
 	/**
 	 * Render the header for this data set
@@ -94,35 +148,76 @@ class LBHToolkit_TableMaker_Column extends LBHToolkit_TableMaker_Abstract
 	 */
 	public function render(&$data, LBHToolkit_TableMaker_Paging $pagingInfo)
 	{
-		
+		// Get the column id
 		$column = $this->column_id;
 		
-		$data_str = $data->$column;
+		// Init html
+		$html = '';
 		
+		// Get the data value
+		if (is_object($data) && isset($data->$column))
+		{
+			$html = (string)$data->$column;
+		}
+		else if (is_array($data) && isset($data[$column]))
+		{
+			$html = (string)$data[$column];
+		}
+		
+		// Default arguments passed to function/view_helper/template
+		$default_arguments = array(
+			'row' => $data, 
+			'row_value' => $html, 
+			'html' => &$html
+		);
+		
+		// Get the html attributes to add to this column
 		$attribs = $this->getBodyAttributes();
 		
-		// 
-		if ($this->body_function && method_exists($data, $this->body_function))
+		if (count($this->getDecorators()))
 		{
-			$function = $this->body_function;
-			$data_str = $data->$function($this, $attribs);
+			foreach ($this->getDecorators() AS $decorator)
+			{
+				$decorator->view = $this->view;
+				$html = $decorator->format($html, $default_arguments);
+			}
 		}
-		
-		// Render a template file
-		if ($this->template)
+
+		/*
+		// Render the body function
+		if ($this->body_function)
 		{
-			$config['row'] = $data;
-			$config['data_str'] = $data_str;
-			$config['debug'] = $this->view->debug;
+			// Get the body function
+			$function = $this->body_function['name'];
 			
-			$data_str = $this->view->partial($this->template, $config);
-		}
+			// If it's an array...
+			if (is_array($function))
+			{
+				// Check to make sure one of our special keys isn't used
+				// in the callable array
+				$function = $this->_parseParams($function, $default_arguments);
+			}
+			
+			$body_function_params = array($default_arguments);
+			if (isset($this->body_function['params']))
+			{
+				// Use them
+				$body_function_params = $this->_parseParams($this->body_function['params'], $default_arguments);
+			}
+			
+			if (!is_callable($function))
+			{
+				$message = sprintf('The body function on %s could not be called.', $column);
+				throw new LBHToolkit_TableMaker_Exception($message);
+			}
+			
+			$html = call_user_func_array($function, $body_function_params);
+			
+		}*/
+
+		$html = sprintf('<td%s>%s</td>', $this->_parseAttribs($attribs), $html);
 		
-		$attribs = $this->_parseAttribs($attribs);
-		
-		$body = sprintf('<td%s>%s</td>', $attribs, $data_str);
-		
-		return $body;
+		return $html;
 	}
 	
 	/**
@@ -165,6 +260,11 @@ class LBHToolkit_TableMaker_Column extends LBHToolkit_TableMaker_Abstract
 		return $attribs;
 	}
 	
+	public function getDecorators()
+	{
+		return $this->_decorators;
+	}
+	
 	/**
 	 * Parse Attribtues arrays into a string
 	 *
@@ -185,5 +285,25 @@ class LBHToolkit_TableMaker_Column extends LBHToolkit_TableMaker_Abstract
 		}
 		
 		return $attrib_str;
+	}
+	
+	protected function _parseParams($params, $replacements)
+	{
+		if (count($params))
+		{
+			foreach ($params AS &$param)
+			{
+				if ($param == '%%row%%')
+				{
+					$param = $replacements['row'];
+				}
+				else if ($param == '%%row_value%%')
+				{
+					$param = $replacements['row_value'];
+				}
+			}
+		}
+		
+		return $params;
 	}
 }

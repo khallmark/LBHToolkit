@@ -47,6 +47,9 @@ class LBHToolkit_TableMaker extends Zend_Controller_Action_Helper_Abstract imple
 	
 	protected $_adapter = NULL;
 	
+	
+	protected $_template_vars = array();
+	
 	/**
 	 * Allows this plugin to be instantiated more easily from the HelperBroker
 	 *
@@ -112,6 +115,22 @@ class LBHToolkit_TableMaker extends Zend_Controller_Action_Helper_Abstract imple
 		}
 		
 		$this->_columns[$column->column_id] = $column;
+		
+		return $column;
+	}
+	
+	/**
+	 * The Template Variables are passed on rendering to an partials rendered by
+	 * the TableMaker.
+	 *
+	 * @param string $key 
+	 * @param string $value 
+	 * @return void
+	 * @author Kevin Hallmark
+	 */
+	public function addTemplateVar($key, $value)
+	{
+		$this->_template_vars[$key] = $value;
 	}
 	
 	/**
@@ -242,17 +261,19 @@ class LBHToolkit_TableMaker extends Zend_Controller_Action_Helper_Abstract imple
 		{
 			if (is_array($row))
 			{
-				$row = (object)$row;
+				$row = (object) $row;
 			}
 			
 			$row_html = '';
 			foreach ($columns AS $column)
 			{
+				$column->template_vars = $this->_template_vars;
+				
 				$column_id = $column->column_id;
-				$row_html = $row_html . $column->render($row, $pagingInfo);
+				$row_html  = $row_html . $column->render($row, $pagingInfo);
 			}
 			
-			$html = $html . sprintf('<tr>%s</tr>', $row_html);
+			$html = $html . sprintf('<tr id="tr_%s">%s</tr>', $row->id, $row_html);
 		}
 		
 		return $html;

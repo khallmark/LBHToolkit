@@ -12,7 +12,7 @@
  * 
  * It is also available online at http://www.littleblackhat.com/lbhtoolkit
  * 
- * @author      Kevin Hallmark <khallmark@avectra.com>
+ * @author      Kevin Hallmark <kevin.hallmark@littleblackhat.com>
  * @since       2011-08-24
  * @package     LBHToolkit
  * @subpackage  TableMaker
@@ -58,4 +58,13 @@ interface LBHToolkit_TableMaker_Adapter_Interface
 	 * @author Kevin Hallmark
 	 */
 	public function getTotalCount();
+	
+	/**
+	 * This function should return a unique/primary key for the passed in row.
+	 *
+	 * @param string $row 
+	 * @return void
+	 * @author Kevin Hallmark
+	 */
+	public function getPrimaryKey($row);
 }

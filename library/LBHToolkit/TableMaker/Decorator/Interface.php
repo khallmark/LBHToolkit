@@ -1,7 +1,7 @@
 <?php
 /**
- * Exception.php
- * LBHToolkit_Google_Exception
+ * Interface.php
+ * LBHToolkit_TableMaker_Decorator_Interface
  * 
  * <description>
  * 
@@ -13,14 +13,23 @@
  * It is also available online at http://www.littleblackhat.com/lbhtoolkit
  * 
  * @author      Kevin Hallmark <kevin.hallmark@littleblackhat.com>
- * @since       2011-10-07
+ * @since       2011-10-19
  * @package     LBHToolkit
- * @subpackage  LBHToolkit_Google
+ * @subpackage  TableMaker
  * @copyright   Little Black Hat, 2011
  * @license     http://www.littleblackhat.com/lbhtoolkit    New BSD License
  */
 
-class LBHToolkit_Google_Exception extends LBHToolkit_Exception
+interface LBHToolkit_TableMaker_Decorator_Interface
 {
-
+	/**
+	 * The format function is used by TableMaker decorators to process the resulting
+	 * string.
+	 *
+	 * @param string $output
+	 * @param array $parameters 
+	 * @return string The HTML string
+	 * @author Kevin Hallmark
+	 */
+	public function format($output, array $parameters = array());
 }

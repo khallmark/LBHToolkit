@@ -12,7 +12,7 @@
  * 
  * It is also available online at http://www.littleblackhat.com/lbhtoolkit
  * 
- * @author      Kevin Hallmark <khallmark@avectra.com>
+ * @author      Kevin Hallmark <kevin.hallmark@littleblackhat.com>
  * @since       2011-10-07
  * @package     LBHToolkit
  * @subpackage  LBHToolkit_Google
