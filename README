@@ -6,6 +6,15 @@ The code is available on GitHub.
 
 http://www.github.com/khallmark/lbhtoolkit
 
+You will need to initialize the library submodule to use this repository. Run the following
+commands:
+
+git submodule init
+git submodule update
+
+then you can run: git pull inside the library directory. You can pull the library
+directly for direct inclusion.
+
 Here is an outline of what is available:
 
 LBHToolkit
