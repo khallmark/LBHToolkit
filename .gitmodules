@@ -1,0 +1,3 @@
+[submodule "library/LBHToolkit"]
+	path = library/LBHToolkit
+	url = git@github.com:khallmark/LBHToolkit-Library.git
